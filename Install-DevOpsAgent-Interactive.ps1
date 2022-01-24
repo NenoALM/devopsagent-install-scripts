@@ -55,7 +55,7 @@ write-host "Length of pwd: "$svcUserPwd.Length
 
 $config = "$agentDirectory/config.cmd"
 iex "$config --version"
-iex "$config --unattended --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentServiceUser --windowsLogonPassword $svcUserPwd"
+iex "$config --unattended --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentServiceUser --windowsLogonPassword '$svcUserPwd'"
 # Note: This does restart the VM!
 
 Write-Host "Done."
