@@ -56,9 +56,9 @@ Write-Output 'Hello'
     -azureDevOpsPAT $azureDevOpsPAT `
     -agentPool "$agentPool-deploy" `
     -agentName "Deploy-$agentName" `
-    -agentServiceUser $agentServiceUser `
-    -agentServicePassword $agentServicePassword `
-    -agentDirectory $deployDirectory `
+    -agentServiceUser "$agentServiceUser" `
+    -agentServicePassword "$agentServicePassword" `
+    -agentDirectory "$deployDirectory" `
     -agentZip $agentZip
 
 Write-Output "+++ END   : Install Deploy-Agent as Service +++"
@@ -72,9 +72,9 @@ $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent-$AgentN
     -azureDevOpsPAT $azureDevOpsPAT `
     -agentPool "$agentPool-agent" `
     -agentName "Agent-$agentName" `
-    -agentServiceUser $agentServiceUser `
-    -agentServicePassword $agentServicePassword `
-    -agentDirectory $agentDirectory `
+    -agentServiceUser "$agentServiceUser" `
+    -agentServicePassword "$agentServicePassword" `
+    -agentDirectory "$agentDirectory" `
     -agentZip $agentZip
 
 Write-Output "+++ END   : Install Agent in interactive mode +++"
