@@ -54,6 +54,6 @@ write-host "Length of pwd: "$svcUserPwd.Length
 
 $config = "$agentDirectory/config.cmd"
 iex "$config --version"
-iex "$config --unattended --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsService --windowsLogonAccount $agentServiceUser --windowsLogonPassword $svcUserPwd"
+iex "$config --unattended --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsService --windowsLogonAccount $agentServiceUser --windowsLogonPassword '$svcUserPwd'"
 
 Write-Host "Done."
