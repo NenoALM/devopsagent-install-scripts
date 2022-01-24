@@ -66,7 +66,7 @@ $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent-$AgentN
     -azureDevOpsURL $azureDevOpsURL `
     -azureDevOpsPAT $azureDevOpsPAT `
     -agentPool "$agentPool-agent" `
-    -agentName "Deploy-$agentName" `
+    -agentName "Agent-$agentName" `
     -agentServiceUser $agentServiceUser `
     -agentServicePassword $agentServicePassword `
     -agentDirectory $agentDirectory `
