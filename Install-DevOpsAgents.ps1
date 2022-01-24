@@ -27,10 +27,9 @@ param (
   
   # Service user password for Windows service
   [Parameter(Mandatory=$true)]
-  [SecureString]$agentServicePassword,
-
-  [Parameter(Mandatory=$true)]
-  [string]$agentZip = "C:/agent.zip",
+  [SecureString]$agentServicePassword
+  
+  [string]$agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip'
 
   [ValidatePattern("[a-zA-Z]")]
   [ValidateLength(1, 1)]
@@ -40,7 +39,13 @@ param (
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
 $ErrorActionPreference = "Stop"
 
-Write-Output "+++ BEGIN: Install Deploy-Agent as Service +++"
+Write-Output "+++ BEGIN : Download Pipelines Agent +++"
+
+$agentZip = "$env:WINDIR/Temp/agent.zip"
+(New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
+
+Write-Output "+++ END   : Download Pipelines Agent +++"
+Write-Output "+++ BEGIN : Install Deploy-Agent as Service +++"
 
 $deployDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Deploy-$AgentName"
 
@@ -56,9 +61,9 @@ Write-Output 'Hello'
     -agentDirectory $deployDirectory `
     -agentZip $agentZip
 
-Write-Output "+++ END: Install Deploy-Agent as Service +++"
+Write-Output "+++ END   : Install Deploy-Agent as Service +++"
 
-Write-Output "+++ BEGIN: Install Agent in interactive mode +++"
+Write-Output "+++ BEGIN : Install Agent in interactive mode +++"
 
 $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent-$AgentName"
 
@@ -72,5 +77,5 @@ $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent-$AgentN
     -agentDirectory $agentDirectory `
     -agentZip $agentZip
 
-Write-Output "+++ END: Install Agent in interactive mode +++"
+Write-Output "+++ END   : Install Agent in interactive mode +++"
 Write-Output "All Done."
