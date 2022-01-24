@@ -27,10 +27,12 @@ param (
   
   # Service user password for Windows service
   [Parameter(Mandatory=$true)]
-  [SecureString]$agentServicePassword
+  [SecureString]$agentServicePassword,
   
-  [string]$agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip'
+  # URL to download Pipelines agent ZIP file from
+  [string]$agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip',
 
+  # Drive letter where agent is to be installed
   [ValidatePattern("[a-zA-Z]")]
   [ValidateLength(1, 1)]
   [string] $driveLetter = 'C'
