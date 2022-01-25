@@ -35,11 +35,21 @@ param (
   # Drive letter where agent is to be installed
   [ValidatePattern("[a-zA-Z]")]
   [ValidateLength(1, 1)]
-  [string] $driveLetter = 'C'
+  [string] $driveLetter = 'C',
+  
+  # Name + value of capability to set as environment variable
+  [Parameter(Mandatory=$true)]
+  [string]$capabilityName = 'PIPELINE_RUNID',
+  [Parameter(Mandatory=$true)]
+  [string]$capabilityValue
 )
 
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
 $ErrorActionPreference = "Stop"
+
+$envVar = $capabilityName.ToUpper()
+Write-Output "Set variable \"$envVar\"=\"$capabilityValue\""
+[System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
 
 Write-Output "+++ BEGIN : Download Pipelines Agent +++"
 
