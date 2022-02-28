@@ -21,13 +21,13 @@ param (
   [Parameter(Mandatory=$true)]
   [string] $agentName,
 
-  # Service user for Windows service
+  # Azure DevOps agent user
   [Parameter(Mandatory=$true)]
-  [string] $agentServiceUser,
+  [string] $agentUser,
   
-  # Service user password for Windows service
+  # Azure DevOps user password
   [Parameter(Mandatory=$true)]
-  [SecureString]$agentServicePassword,
+  [SecureString]$agentPassword,
 
   # URL to download Pipelines agent ZIP file from
   [Parameter(Mandatory=$true)]
@@ -74,13 +74,13 @@ $patCredential = New-Object -TypeName System.Management.Automation.PSCredential 
 $token = $patCredential.GetNetworkCredential().password
 Write-Output "Length of token: "$token.Length" (should equal 52)"
 
-$pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentServicePassword
+$pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
 $svcUserPwd = $pwdCredential.GetNetworkCredential().password
 Write-Output "Length of pwd: "$svcUserPwd.Length
 
 $config = "$agentDirectory/config.cmd"
 iex "$config --version"
-iex "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentServiceUser --windowsLogonPassword '$svcUserPwd'"
+iex "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
 # Note: This does restart the VM!
 
 Write-Host "Done."
