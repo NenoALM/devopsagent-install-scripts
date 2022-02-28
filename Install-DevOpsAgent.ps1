@@ -39,7 +39,10 @@ param (
   [string] $driveLetter = 'C',
 
   # Temp folder where files will be downloaded to
-  [string] $tempFolder = "$env:WINDIR/Temp",
+  [string] $workDirectory = "${driveLetter}:/Agent",
+
+  # Temp folder where files will be downloaded to
+  [string] $tempDirectory = "$env:WINDIR/Temp",
   
   # Name + value of capability to set as environment variable
   [Parameter(Mandatory=$true)]
@@ -59,7 +62,8 @@ Write-Output "  agentName        : $agentName"
 Write-Output "  agentUser        : $agentUser"
 Write-Output "  agentDownloadUrl : $agentDownloadUrl"
 Write-Output "  driveLetter      : $driveLetter"
-Write-Output "  tempFolder       : $tempFolder"
+Write-Output "  workDirectory    : $workDirectory"
+Write-Output "  tempDirectory    : $tempDirectory"
 Write-Output "  capabilityName   : $capabilityName"
 Write-Output "  capabilityValue  : $capabilityValue"
 
@@ -71,7 +75,8 @@ Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 #################### AGENT DOWNLOAD + EXTRACT ####################
 $timeDownload = Measure-Command {
     Write-Output "Downloading Pipelines Agent..."
-    $agentZip = "$tempFolder/agent.zip"
+    $agentZip = "$tempDirectory/agent.zip"
+    Write-Output "  Target file: $agentZip"
     (New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
 }
 Write-Output "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g')))"
@@ -79,6 +84,7 @@ Write-Output "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g
 $timeExtract = Measure-Command {
     Write-Output "Exctracting DevOps Agent..."
     $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
+    Write-Output "  Target path: $agentDirectory"
     Expand-Archive -Path $agentZip -Destination $agentDirectory -Force
 }
 Write-Output "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
@@ -89,19 +95,22 @@ $timePrepare = Measure-Command {
 
     $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
     $token = $patCredential.GetNetworkCredential().password
-    Write-Output "Length of token: "$token.Length" (should equal 52)"
+    Write-Output "Length of token: $($token.Length) (should equal 52)"
 
     $pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
     $svcUserPwd = $pwdCredential.GetNetworkCredential().password
-    Write-Output "Length of pwd: "$svcUserPwd.Length
+    Write-Output "Length of pwd: $($svcUserPwd.Length)"
 }
 Write-Output "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
 
 $timeConfig = Measure-Command {
     Write-Host "Configuring DevOps Agent..."
     $config = "$agentDirectory/config.cmd"
-    Invoke-Expression "$config --version"
-    Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
+    #Invoke-Expression "$config --version"
+
+    # see docs for parameters:
+    # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops&WT.mc_id=DOP-MVP-21138#unattended-config
+    Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
