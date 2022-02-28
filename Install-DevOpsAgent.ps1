@@ -7,30 +7,31 @@
 param (
   # URL to Azure DevOps organization (e.g. https://dev.azure.com/<org>)
   [Parameter(Mandatory=$true)]
-  [string]$azureDevOpsURL,
+  [string] $azureDevOpsURL,
 
   # Personal access token with scope of 'Manage Agent Pools'
   [Parameter(Mandatory=$true)]
-  [SecureString]$azureDevOpsPAT,
+  [SecureString] $azureDevOpsPAT,
 
   # Name of agent pool to register the agent against
   [Parameter(Mandatory=$true)]
-  [string]$agentPool,
+  [string] $agentPool,
 
   # Desired agent name (typically same as machine name)
   [Parameter(Mandatory=$true)]
-  [string]$agentName,
+  [string] $agentName,
 
   # Service user for Windows service
   [Parameter(Mandatory=$true)]
-  [string]$agentServiceUser,
+  [string] $agentServiceUser,
   
   # Service user password for Windows service
   [Parameter(Mandatory=$true)]
   [SecureString]$agentServicePassword,
 
   # URL to download Pipelines agent ZIP file from
-  [string]$agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip',
+  [Parameter(Mandatory=$true)]
+  [string] $agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip',
 
   # Drive letter where agent is to be installed
   [ValidatePattern("[a-zA-Z]")]
@@ -42,9 +43,10 @@ param (
   
   # Name + value of capability to set as environment variable
   [Parameter(Mandatory=$true)]
-  [string]$capabilityName = 'GROUP_ID',
+  [string] $capabilityName,
+
   [Parameter(Mandatory=$true)]
-  [string]$capabilityValue
+  [string] $capabilityValue
 )
 
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
