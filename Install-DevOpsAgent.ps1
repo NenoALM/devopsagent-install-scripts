@@ -67,12 +67,16 @@ Write-Output "  tempDirectory    : $tempDirectory"
 Write-Output "  capabilityName   : $capabilityName"
 Write-Output "  capabilityValue  : $capabilityValue"
 
-#################### CAPABILITY ####################
+#--------------------------------------------------------------------------------#
+# AGENT CAPABILITY
+#--------------------------------------------------------------------------------#
 $envVar = $capabilityName.ToUpper()
 Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
 
-#################### AGENT DOWNLOAD + EXTRACT ####################
+#--------------------------------------------------------------------------------#
+# AGENT DOWNLOAD
+#--------------------------------------------------------------------------------#
 $timeDownload = Measure-Command {
     Write-Output "Downloading Pipelines Agent..."
     $agentZip = "$tempDirectory/agent.zip"
@@ -81,6 +85,9 @@ $timeDownload = Measure-Command {
 }
 Write-Output "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g')))"
 
+#--------------------------------------------------------------------------------#
+# AGENT EXTRACT
+#--------------------------------------------------------------------------------#
 $timeExtract = Measure-Command {
     Write-Output "Exctracting DevOps Agent..."
     $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
@@ -89,7 +96,9 @@ $timeExtract = Measure-Command {
 }
 Write-Output "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
 
-#################### AGENT INSTALL ####################
+#--------------------------------------------------------------------------------#
+# PREPARE PARAMETERS
+#--------------------------------------------------------------------------------#
 $timePrepare = Measure-Command {
     Write-Output "Preparing parameters..."
 
@@ -103,6 +112,9 @@ $timePrepare = Measure-Command {
 }
 Write-Output "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
 
+#--------------------------------------------------------------------------------#
+# AGENT CONFIGURATION
+#--------------------------------------------------------------------------------#
 $timeConfig = Measure-Command {
     Write-Host "Configuring DevOps Agent..."
     $config = "$agentDirectory/config.cmd"
@@ -114,4 +126,4 @@ $timeConfig = Measure-Command {
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
-Write-Output "Done."
+Write-Output "All done."
