@@ -52,6 +52,17 @@ param (
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
 $ErrorActionPreference = "Stop"
 
+Write-Output "Script called with the following parameters:"
+Write-Output "  azureDevOpsURL   : $azureDevOpsURL"
+Write-Output "  agentPool        : $agentPool"
+Write-Output "  agentName        : $agentName"
+Write-Output "  agentUser        : $agentUser"
+Write-Output "  agentDownloadUrl : $agentDownloadUrl"
+Write-Output "  driveLetter      : $driveLetter"
+Write-Output "  tempFolder       : $tempFolder"
+Write-Output "  capabilityName   : $capabilityName"
+Write-Output "  capabilityValue  : $capabilityValue"
+
 #################### CAPABILITY ####################
 $envVar = $capabilityName.ToUpper()
 Write-Output "Set variable ""$envVar""=""$capabilityValue"""
