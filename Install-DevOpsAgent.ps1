@@ -52,7 +52,7 @@ $ErrorActionPreference = "Stop"
 
 #################### CAPABILITY ####################
 $envVar = $capabilityName.ToUpper()
-Write-Output "Set variable \"$envVar\"=\"$capabilityValue\""
+Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
 
 #################### AGENT DOWNLOAD + EXTRACT ####################
