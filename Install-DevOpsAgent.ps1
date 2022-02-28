@@ -74,7 +74,7 @@ Write-Output "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))
 
 #################### AGENT INSTALL ####################
 $timePrepare = Measure-Command {
-    Write-Host "Preparing parameters..."
+    Write-Output "Preparing parameters..."
 
     $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
     $token = $patCredential.GetNetworkCredential().password
@@ -94,4 +94,4 @@ $timeConfig = Measure-Command {
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
-Write-Host "Done."
+Write-Output "Done."
