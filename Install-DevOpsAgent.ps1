@@ -21,6 +21,10 @@ param (
   [Parameter(Mandatory=$true)]
   [string] $agentName,
 
+  # If true, agent will run as auto logon. If false, agent will install as windows service.
+  [Parameter(Mandatory=$true)]
+  [bool] $agentInteractive,
+
   # Azure DevOps agent user
   [Parameter(Mandatory=$true)]
   [string] $agentUser,
@@ -59,6 +63,7 @@ Write-Output "Script called with the following parameters:"
 Write-Output "  azureDevOpsURL   : $azureDevOpsURL"
 Write-Output "  agentPool        : $agentPool"
 Write-Output "  agentName        : $agentName"
+Write-Output "  agentInteractive : $agentInteractive"
 Write-Output "  agentUser        : $agentUser"
 Write-Output "  agentDownloadUrl : $agentDownloadUrl"
 Write-Output "  driveLetter      : $driveLetter"
@@ -122,7 +127,12 @@ $timeConfig = Measure-Command {
 
     # see docs for parameters:
     # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops&WT.mc_id=DOP-MVP-21138#unattended-config
-    Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
+    if ($agentInteractive) {
+        Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
+    }
+    else {
+        Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsService --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
+    }
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
