@@ -62,11 +62,11 @@ $agentZip = "$tempFolder/agent.zip"
 (New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
 
 Write-Output "Exctracting DevOps Agent..."
+$agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
 Expand-Archive -Path $agentZip -Destination $agentDirectory -Force
 
 #################### AGENT INSTALL ####################
 Write-Host "Configuring DevOps Agent..."
-$agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
 
 $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
 $token = $patCredential.GetNetworkCredential().password
