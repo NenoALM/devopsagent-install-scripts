@@ -58,29 +58,40 @@ Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
 
 #################### AGENT DOWNLOAD + EXTRACT ####################
-Write-Output "Download Pipelines Agent..."
+$timeDownload = Measure-Command {
+    Write-Output "Downloading Pipelines Agent..."
+    $agentZip = "$tempFolder/agent.zip"
+    (New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
+}
+Write-Output "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g')))"
 
-$agentZip = "$tempFolder/agent.zip"
-(New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
-
-Write-Output "Exctracting DevOps Agent..."
-$agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
-Expand-Archive -Path $agentZip -Destination $agentDirectory -Force
+$timeExtract = Measure-Command {
+    Write-Output "Exctracting DevOps Agent..."
+    $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
+    Expand-Archive -Path $agentZip -Destination $agentDirectory -Force
+}
+Write-Output "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
 
 #################### AGENT INSTALL ####################
-Write-Host "Configuring DevOps Agent..."
+$timePrepare = Measure-Command {
+    Write-Host "Preparing parameters..."
 
-$patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
-$token = $patCredential.GetNetworkCredential().password
-Write-Output "Length of token: "$token.Length" (should equal 52)"
+    $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
+    $token = $patCredential.GetNetworkCredential().password
+    Write-Output "Length of token: "$token.Length" (should equal 52)"
 
-$pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
-$svcUserPwd = $pwdCredential.GetNetworkCredential().password
-Write-Output "Length of pwd: "$svcUserPwd.Length
+    $pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
+    $svcUserPwd = $pwdCredential.GetNetworkCredential().password
+    Write-Output "Length of pwd: "$svcUserPwd.Length
+}
+Write-Output "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
 
-$config = "$agentDirectory/config.cmd"
-iex "$config --version"
-iex "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
-# Note: This does restart the VM!
+$timeConfig = Measure-Command {
+    Write-Host "Configuring DevOps Agent..."
+    $config = "$agentDirectory/config.cmd"
+    Invoke-Expression "$config --version"
+    Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
+}
+Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
 Write-Host "Done."
