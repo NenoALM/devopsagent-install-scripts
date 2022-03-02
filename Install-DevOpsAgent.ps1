@@ -33,10 +33,10 @@ param (
   [string] $driveLetter = 'C',
 
   # Temp folder where files will be downloaded to
-  [string] $workDirectory = "${driveLetter}:/Agent",
+  [string] $workDirectory = "${driveLetter}:\Agent",
 
   # Temp folder where files will be downloaded to
-  [string] $tempDirectory = "$env:WINDIR/Temp",
+  [string] $tempDirectory = "$env:WINDIR\Temp",
   
   # Name + value of capability to set as environment variable
   [string] $capabilityName,
