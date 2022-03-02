@@ -111,6 +111,22 @@ $capabilityName | Validate-Parameter -Message "-capabilityName is a required par
 $capabilityValue | Validate-Parameter -Message "-capabilityValue is a required parameter"
 
 #--------------------------------------------------------------------------------#
+# PREPARE PARAMETERS
+#--------------------------------------------------------------------------------#
+$timePrepare = Measure-Command {
+    Write-Host "Preparing parameters..."
+
+    $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
+    $token = $patCredential.GetNetworkCredential().password
+    Write-Host "  Length of token: $($token.Length) (should equal 52)"
+
+    $pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
+    $svcUserPwd = $pwdCredential.GetNetworkCredential().password
+    Write-Host "  Length of pwd: $($svcUserPwd.Length)"
+}
+Write-Host "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
+
+#--------------------------------------------------------------------------------#
 # AGENT CAPABILITY
 #--------------------------------------------------------------------------------#
 $envVar = $capabilityName.ToUpper()
@@ -123,7 +139,7 @@ Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 #--------------------------------------------------------------------------------#
 $timeDownload = Measure-Command {
     Write-Host "Downloading Pipelines Agent..."
-    $agentZip = "$tempDirectory/agent.zip"
+    $agentZip = "$tempDirectory\agent.zip"
     Write-Host "  Target file: $agentZip"
     (New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
 }
@@ -141,28 +157,12 @@ $timeExtract = Measure-Command {
 Write-Host "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
 
 #--------------------------------------------------------------------------------#
-# PREPARE PARAMETERS
-#--------------------------------------------------------------------------------#
-$timePrepare = Measure-Command {
-    Write-Host "Preparing parameters..."
-
-    $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
-    $token = $patCredential.GetNetworkCredential().password
-    Write-Host "Length of token: $($token.Length) (should equal 52)"
-
-    $pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
-    $svcUserPwd = $pwdCredential.GetNetworkCredential().password
-    Write-Host "Length of pwd: $($svcUserPwd.Length)"
-}
-Write-Host "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
-
-#--------------------------------------------------------------------------------#
 # AGENT CONFIGURATION
 #--------------------------------------------------------------------------------#
 $timeConfig = Measure-Command {
     Write-Host "Configuring DevOps Agent..."
     $config = "$agentDirectory/config.cmd"
-    #Invoke-Expression "$config --version"
+    Write-Host "  Command: $config"
 
     # see docs for parameters:
     # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops&WT.mc_id=DOP-MVP-21138#unattended-config
