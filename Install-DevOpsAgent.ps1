@@ -84,18 +84,18 @@ $ErrorActionPreference = "Stop"
 $stopwatch = [System.Diagnostics.Stopwatch]::new()
 $stopwatch.Start()
 
-Write-Output "Script called with the following parameters:"
-Write-Output "  azureDevOpsURL   : $azureDevOpsURL"
-Write-Output "  agentPool        : $agentPool"
-Write-Output "  agentName        : $agentName"
-Write-Output "  agentInteractive : $agentInteractive"
-Write-Output "  agentUser        : $agentUser"
-Write-Output "  agentDownloadUrl : $agentDownloadUrl"
-Write-Output "  driveLetter      : $driveLetter"
-Write-Output "  workDirectory    : $workDirectory"
-Write-Output "  tempDirectory    : $tempDirectory"
-Write-Output "  capabilityName   : $capabilityName"
-Write-Output "  capabilityValue  : $capabilityValue"
+Write-Host "Script called with the following parameters:"
+Write-Host "  azureDevOpsURL   : $azureDevOpsURL"
+Write-Host "  agentPool        : $agentPool"
+Write-Host "  agentName        : $agentName"
+Write-Host "  agentInteractive : $agentInteractive"
+Write-Host "  agentUser        : $agentUser"
+Write-Host "  agentDownloadUrl : $agentDownloadUrl"
+Write-Host "  driveLetter      : $driveLetter"
+Write-Host "  workDirectory    : $workDirectory"
+Write-Host "  tempDirectory    : $tempDirectory"
+Write-Host "  capabilityName   : $capabilityName"
+Write-Host "  capabilityValue  : $capabilityValue"
 
 $azureDevOpsURL | Validate-Parameter -Message "-azureDevOpsURL is a required parameter"
 $azureDevOpsPAT | Validate-Parameter -Message "-azureDevOpsPAT is a required parameter"
@@ -114,7 +114,7 @@ $capabilityValue | Validate-Parameter -Message "-capabilityValue is a required p
 # AGENT CAPABILITY
 #--------------------------------------------------------------------------------#
 $envVar = $capabilityName.ToUpper()
-Write-Output "Set variable ""$envVar""=""$capabilityValue"""
+Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Process")
 
@@ -122,68 +122,68 @@ Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 # AGENT DOWNLOAD
 #--------------------------------------------------------------------------------#
 $timeDownload = Measure-Command {
-    Write-Output "Downloading Pipelines Agent..."
+    Write-Host "Downloading Pipelines Agent..."
     $agentZip = "$tempDirectory/agent.zip"
-    Write-Output "  Target file: $agentZip"
+    Write-Host "  Target file: $agentZip"
     (New-Object System.Net.WebClient).DownloadFile($agentDownloadUrl, $agentZip)
 }
-Write-Output "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g')))"
+Write-Host "Finished: Downloading Pipelines Agent ($($timeDownload.ToString('g')))"
 
 #--------------------------------------------------------------------------------#
 # AGENT EXTRACT
 #--------------------------------------------------------------------------------#
 $timeExtract = Measure-Command {
-    Write-Output "Exctracting DevOps Agent..."
+    Write-Host "Exctracting DevOps Agent..."
     $agentDirectory = Join-Path -Path ($driveLetter + ":") -ChildPath "Agent"
-    Write-Output "  Target path: $agentDirectory"
+    Write-Host "  Target path: $agentDirectory"
     Expand-Archive -Path $agentZip -Destination $agentDirectory -Force
 }
-Write-Output "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
+Write-Host "Finished: Exctracting DevOps Agent ($($timeExtract.ToString('g')))"
 
 #--------------------------------------------------------------------------------#
 # PREPARE PARAMETERS
 #--------------------------------------------------------------------------------#
 $timePrepare = Measure-Command {
-    Write-Output "Preparing parameters..."
+    Write-Host "Preparing parameters..."
 
     $patCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "pat", $azureDevOpsPAT
     $token = $patCredential.GetNetworkCredential().password
-    Write-Output "Length of token: $($token.Length) (should equal 52)"
+    Write-Host "Length of token: $($token.Length) (should equal 52)"
 
     $pwdCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList "service", $agentPassword
     $svcUserPwd = $pwdCredential.GetNetworkCredential().password
-    Write-Output "Length of pwd: $($svcUserPwd.Length)"
+    Write-Host "Length of pwd: $($svcUserPwd.Length)"
 }
-Write-Output "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
+Write-Host "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
 
 #--------------------------------------------------------------------------------#
 # AGENT CONFIGURATION
 #--------------------------------------------------------------------------------#
 $timeConfig = Measure-Command {
-    Write-Output "Configuring DevOps Agent..."
+    Write-Host "Configuring DevOps Agent..."
     $config = "$agentDirectory/config.cmd"
     #Invoke-Expression "$config --version"
 
     # see docs for parameters:
     # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops&WT.mc_id=DOP-MVP-21138#unattended-config
     if ($agentInteractive) {
-        Write-Output "  Mode: --runAsAutoLogon"
+        Write-Host "  Mode: --runAsAutoLogon"
         Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
     }
     else {
-        Write-Output "  Mode: --runAsService"
+        Write-Host "  Mode: --runAsService"
         Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsService --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
     }
-    Write-Output "  Exit Code: $LASTEXITCODE"
+    Write-Host "  Exit Code: $LASTEXITCODE"
     if ($LASTEXITCODE -ne 0)
     {
         $errMsg = 'Agent configuration failed.'
-        Write-Output $errMsg
+        Write-Host $errMsg
         Write-Error $errMsg
         Exit 1
     }
 }
-Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
+Write-Host "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
 $Stopwatch.Stop()
-Write-Output "All done. ($($stopwatch.Elapsed.ToString('g')))"
+Write-Host "All done. ($($stopwatch.Elapsed.ToString('g')))"
