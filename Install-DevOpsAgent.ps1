@@ -113,6 +113,7 @@ $capabilityValue | Validate-Parameter -Message "-capabilityValue is a required p
 $envVar = $capabilityName.ToUpper()
 Write-Output "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Machine")
+[System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Process")
 
 #--------------------------------------------------------------------------------#
 # AGENT DOWNLOAD
