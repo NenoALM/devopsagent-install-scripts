@@ -6,35 +6,25 @@
 [CmdletBinding()]
 param (
   # URL to Azure DevOps organization (e.g. https://dev.azure.com/<org>)
-  [Parameter(Mandatory=$true)]
   [string] $azureDevOpsURL,
 
   # Personal access token with scope of 'Manage Agent Pools'
-  [Parameter(Mandatory=$true)]
   [SecureString] $azureDevOpsPAT,
 
   # Name of agent pool to register the agent against
-  [Parameter(Mandatory=$true)]
   [string] $agentPool,
 
   # Desired agent name (typically same as machine name)
-  [Parameter(Mandatory=$true)]
   [string] $agentName,
 
   # If true, agent will run as auto logon. If false, agent will install as windows service.
-  [Parameter(Mandatory=$true)]
   [bool] $agentInteractive,
 
-  # Azure DevOps agent user
-  [Parameter(Mandatory=$true)]
+  # Azure DevOps agent user and password
   [string] $agentUser,
-  
-  # Azure DevOps user password
-  [Parameter(Mandatory=$true)]
   [SecureString]$agentPassword,
 
   # URL to download Pipelines agent ZIP file from
-  [Parameter(Mandatory=$true)]
   [string] $agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip',
 
   # Drive letter where agent is to be installed
@@ -49,12 +39,44 @@ param (
   [string] $tempDirectory = "$env:WINDIR/Temp",
   
   # Name + value of capability to set as environment variable
-  [Parameter(Mandatory=$true)]
   [string] $capabilityName,
-
-  [Parameter(Mandatory=$true)]
   [string] $capabilityValue
 )
+
+#--------------------------------------------------------------------------------#
+# FUNCTIONS
+#--------------------------------------------------------------------------------#
+
+function Validate-Parameter {
+    [CmdletBinding()]
+    param(
+        [Parameter(
+            Mandatory=$true , #irony
+            ValueFromPipeline=$true
+        )]
+        [object]
+        $o ,
+    
+        [String]
+        $Message
+    )
+    
+        Begin {
+            if (!$Message) {
+                $Message = 'The specified parameter is required.'
+            }
+        }
+    
+        Process {
+            if (!$o) {
+                throw [System.ArgumentException]$Message
+            }
+        }
+    }
+
+#--------------------------------------------------------------------------------#
+# MAIN
+#--------------------------------------------------------------------------------#
 
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
 $ErrorActionPreference = "Stop"
@@ -71,6 +93,19 @@ Write-Output "  workDirectory    : $workDirectory"
 Write-Output "  tempDirectory    : $tempDirectory"
 Write-Output "  capabilityName   : $capabilityName"
 Write-Output "  capabilityValue  : $capabilityValue"
+
+$azureDevOpsURL | Validate-Parameter -Message "-azureDevOpsURL is a required parameter"
+$azureDevOpsPAT | Validate-Parameter -Message "-azureDevOpsPAT is a required parameter"
+$agentPool | Validate-Parameter -Message "-agentPool is a required parameter"
+$agentName | Validate-Parameter -Message "-agentName is a required parameter"
+$agentUser | Validate-Parameter -Message "-agentUser is a required parameter"
+$agentPassword | Validate-Parameter -Message "-agentPassword is a required parameter"
+$agentDownloadUrl | Validate-Parameter -Message "-agentDownloadUrl is a required parameter"
+$driveLetter | Validate-Parameter -Message "-driveLetter is a required parameter"
+$workDirectory | Validate-Parameter -Message "-workDirectory is a required parameter"
+$tempDirectory | Validate-Parameter -Message "-tempDirectory is a required parameter"
+$capabilityName | Validate-Parameter -Message "-capabilityName is a required parameter"
+$capabilityValue | Validate-Parameter -Message "-capabilityValue is a required parameter"
 
 #--------------------------------------------------------------------------------#
 # AGENT CAPABILITY
