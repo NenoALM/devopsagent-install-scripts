@@ -168,6 +168,14 @@ $timeConfig = Measure-Command {
     else {
         Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsService --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
     }
+    Write-Output "  Exit Code: $LASTEXITCODE"
+    if ($LASTEXITCODE -ne 0)
+    {
+        $errMsg = 'Agent configuration failed.'
+        Write-Output $errMsg
+        Write-Error $errMsg
+        Exit 1
+    }
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
