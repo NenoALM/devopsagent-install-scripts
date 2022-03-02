@@ -81,6 +81,9 @@ function Validate-Parameter {
 # Note: Because the $ErrorActionPreference is "Stop", this script will stop on first failure.  
 $ErrorActionPreference = "Stop"
 
+$stopwatch = [System.Diagnostics.Stopwatch]::new()
+$stopwatch.Start()
+
 Write-Output "Script called with the following parameters:"
 Write-Output "  azureDevOpsURL   : $azureDevOpsURL"
 Write-Output "  agentPool        : $agentPool"
@@ -182,4 +185,5 @@ $timeConfig = Measure-Command {
 }
 Write-Output "Finished: Configuring DevOps Agent ($($timeConfig.ToString('g')))"
 
-Write-Output "All done."
+$Stopwatch.Stop()
+Write-Output "All done. ($($stopwatch.Elapsed.ToString('g')))"
