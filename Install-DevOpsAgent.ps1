@@ -157,16 +157,18 @@ Write-Output "Finished: Preparing parameters ($($timePrepare.ToString('g')))"
 # AGENT CONFIGURATION
 #--------------------------------------------------------------------------------#
 $timeConfig = Measure-Command {
-    Write-Host "Configuring DevOps Agent..."
+    Write-Output "Configuring DevOps Agent..."
     $config = "$agentDirectory/config.cmd"
     #Invoke-Expression "$config --version"
 
     # see docs for parameters:
     # https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-windows?view=azure-devops&WT.mc_id=DOP-MVP-21138#unattended-config
     if ($agentInteractive) {
+        Write-Output "  Mode: --runAsAutoLogon"
         Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsAutoLogon --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
     }
     else {
+        Write-Output "  Mode: --runAsService"
         Invoke-Expression "$config --unattended --norestart --url $azureDevOpsURL --auth pat --token $token --pool $agentPool --agent $agentName --work $workDirectory --runAsService --windowsLogonAccount $agentUser --windowsLogonPassword '$svcUserPwd'"
     }
     Write-Output "  Exit Code: $LASTEXITCODE"
