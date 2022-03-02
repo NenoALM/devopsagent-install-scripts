@@ -22,7 +22,7 @@ param (
 
   # Azure DevOps agent user and password
   [string] $agentUser,
-  [SecureString]$agentPassword,
+  [SecureString] $agentPassword,
 
   # URL to download Pipelines agent ZIP file from
   [string] $agentDownloadUrl = 'https://vstsagentpackage.azureedge.net/agent/2.196.2/vsts-agent-win-x64-2.196.2.zip',
