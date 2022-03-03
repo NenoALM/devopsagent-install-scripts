@@ -135,6 +135,12 @@ Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 [System.Environment]::SetEnvironmentVariable($envVar, $capabilityValue, "Process")
 
 #--------------------------------------------------------------------------------#
+# RENAME COMPUTER
+#--------------------------------------------------------------------------------#
+Write-Host "Rename computer from $env:COMPUTERNAME to $agentName"
+Rename-Computer -NewName "$agentName" -Force
+
+#--------------------------------------------------------------------------------#
 # AGENT DOWNLOAD
 #--------------------------------------------------------------------------------#
 $timeDownload = Measure-Command {
