@@ -137,8 +137,17 @@ Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 #--------------------------------------------------------------------------------#
 # RENAME COMPUTER
 #--------------------------------------------------------------------------------#
-Write-Host "Rename computer from $env:COMPUTERNAME to $agentName"
-Rename-Computer -NewName "$agentName" -Force
+$currentComputerName = $env:COMPUTERNAME
+$newComputerName = $agentName
+
+if ($currentComputerName -ne $newComputerName)
+{
+    Write-Host "Rename computer from $currentComputerName to $newComputerName"
+    Rename-Computer -NewName "$newComputerName" -Force
+}
+else {
+    Write-Host "Computer name is: $newComputerName"
+}
 
 #--------------------------------------------------------------------------------#
 # AGENT DOWNLOAD
