@@ -137,17 +137,21 @@ Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 #--------------------------------------------------------------------------------#
 # RENAME COMPUTER
 #--------------------------------------------------------------------------------#
-$currentComputerName = $env:COMPUTERNAME
-$newComputerName = $agentName
+$timeRenamePC = Measure-Command {
+    Write-Host "Renaming PC..."
+    $currentComputerName = $env:COMPUTERNAME
+    $newComputerName = $agentName
 
-if ($currentComputerName -ne $newComputerName)
-{
-    Write-Host "Rename computer from $currentComputerName to $newComputerName"
-    Rename-Computer -NewName "$newComputerName" -Force
+    if ($currentComputerName -ne $newComputerName)
+    {
+        Write-Host "  Rename computer from $currentComputerName to $newComputerName"
+        Rename-Computer -NewName "$newComputerName" -Force
+    }
+    else {
+        Write-Host "  Computer name is: $newComputerName. No changes."
+    }
 }
-else {
-    Write-Host "Computer name is: $newComputerName"
-}
+Write-Host "Finished: Renaming PC ($($timeRenamePC.ToString('g')))"
 
 #--------------------------------------------------------------------------------#
 # AGENT DOWNLOAD
