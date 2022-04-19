@@ -5,6 +5,9 @@
 
 [CmdletBinding()]
 param (
+  # Desired computer name (renames computer, if needed)
+  [string] $computerName,
+  
   # URL to Azure DevOps organization (e.g. https://dev.azure.com/<org>)
   [string] $azureDevOpsURL,
 
@@ -140,7 +143,7 @@ Write-Host "Set variable ""$envVar""=""$capabilityValue"""
 $timeRenamePC = Measure-Command {
     Write-Host "Renaming PC..."
     $currentComputerName = $env:COMPUTERNAME
-    $newComputerName = $agentName
+    $newComputerName = $computerName
 
     if ($currentComputerName -ne $newComputerName)
     {
